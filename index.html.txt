@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>歴史シミュレーション - 織田信長編</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background-color: #1a1a1d;
+      color: #eeeeee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .game-container {
+      background-color: #25262a;
+      border: 2px solid #4e4e50;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+    .header {
+      border-bottom: 2px solid #c5a059;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: #1a1a1d;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+    .danger-text { color: #ff4d4d; font-weight: bold; }
+    .question-box {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      min-height: 80px;
+    }
+    .options-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      background-color: #3b3c40;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95em;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background-color: #c5a059;
+      color: #000;
+      font-weight: bold;
+    }
+    .result-box {
+      background-color: #1a1a1d;
+      border-left: 4px solid #c5a059;
+      padding: 15px;
+      margin-top: 15px;
+      display: none;
+    }
+    .next-btn {
+      margin-top: 15px;
+      width: 100%;
+      background-color: #c5a059;
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <div class="header">
+    <h2 id="turn-title" style="margin:0; color:#c5a059;">織田信長編</h2>
+  </div>
+
+  <div class="status-bar">
+    <div>魔王: <span id="pt-maou">0</span> | 商才: <span id="pt-syousai">0</span></div>
+    <div>慎重: <span id="pt-sinchou">0</span> | 奇策: <span id="pt-kisaku">0</span></div>
+    <div style="grid-column: span 2;">
+      本能寺危険度: <span id="danger-degree" class="danger-text">0%</span>
+    </div>
+  </div>
+
+  <div id="question-text" class="question-box"></div>
+
+  <div id="options-container" class="options-box"></div>
+
+  <div id="result-container" class="result-box">
+    <div id="result-text"></div>
+    <button id="next-button" class="btn next-btn" onclick="nextTurn()">次のターンへ</button>
+  </div>
+</div>
+
+<script>
+// --- ゲームデータ ---
+const gameData = [
+  {
+    turn: 1,
+    title: "1560年 桶狭間の戦い",
+    question: "大変だ！今川義元が2万5千の大軍を率いて尾張へ攻め込んできたぞ！我が軍はわずか2千……どうする！？",
+    options: [
+      { text: "A: 少数の精鋭を率い、雨に乗じて桶狭間へ奇襲をかける！", type: "maou", danger: 0, result: "豪雨のなか奇襲が完璧に決まり、義元の首級を挙げた！天下に名が轟く！" },
+      { text: "B: 清洲城に立てこもり、徹底的な籠城戦で敵の疲弊を待つ！", type: "sinchou", danger: 5, result: "兵糧攻めに耐え抜き、諦めた今川軍は撤退。地味だが確実な勝利だ。" },
+      { text: "C: 今川軍の兵糧を極秘に買い占め、空腹で動けなくする！", type: "syousai", danger: 5, result: "金の力で兵糧ルートを遮断！腹を空かせた今川軍は戦わずして自滅した！" },
+      { text: "D: ひとまず『人間五十年〜』と舞（敦盛）を踊って現実逃避する！", type: "kisaku", danger: 25, result: "豪快に踊り狂う姿を見て、今川軍は『なんか怖い…』と引き返していった！" }
+    ]
+  },
+  {
+    turn: 2,
+    title: "1567年 美濃攻略",
+    question: "斉藤家を倒し、美濃を手に入れたぞ！この地を治めるにあたり、新しい城下の名前や方針はどうする？",
+    options: [
+      { text: "A: 中国の故事に倣い、この地を『岐阜』と改め天下布武を掲げる！", type: "maou", danger: 0, result: "『岐阜』の誕生だ！信長の覚悟に、家臣たちの士気が跳ね上がった！" },
+      { text: "B: 税金を免除する『楽市楽座』を開き、全国から商人を呼び込む！", type: "syousai", danger: 0, result: "全国から商人やモノが集まり、岐阜は日本一の大商業都市へ発展した！" },
+      { text: "C: そのまま『井ノ口』のままでいこう。無駄な改名は混乱の元だ。", type: "sinchou", danger: 0, result: "実に手堅い。住民たちも混乱することなく静かに城下町が発展していった。" },
+      { text: "D: 光秀のハゲ頭にあやかって『光秀タウン』にする！", type: "kisaku", danger: 30, result: "明智光秀が顔を真っ赤にして震えている……（光秀の殺意が跳ね上がった！）" }
+    ]
+  },
+  {
+    turn: 3,
+    title: "1568年 足利義昭と上洛",
+    question: "前将軍の弟・足利義昭が『自分を京都に連れて行き、将軍にしてほしい』と頼んできた。どう対応する？",
+    options: [
+      { text: "A: 義昭を大義名分として掲げ、一気に京都へ上洛する！", type: "maou", danger: 0, result: "将軍の威光を背に京都へ入城！信長の名は一躍、全国へ知れ渡った！" },
+      { text: "B: 上洛のついでに、堺の豪商たちから莫大な矢銭（税金）を徴収する！", type: "syousai", danger: 5, result: "京都をおさえつつ莫大な資金を獲得！織田家の財政は盤石となった！" },
+      { text: "C: 京都は危険すぎる。義昭には尾張で大人しくしておいてもらう。", type: "sinchou", danger: 5, result: "京都の泥沼の権力争いを回避。着実に周辺の領有権を固めることに専念した。" },
+      { text: "D: 義昭に金のピチピチタイツを着せて、アイドルとして売り出す！", type: "kisaku", danger: 15, result: "京の都で『格調高き貴公子アイドル』として大ブレイク！謎の収入が入った！" }
+    ]
+  }
+];
+
+// --- ゲーム変数 ---
+let currentTurn = 0;
+let stats = { maou: 0, syousai: 0, sinchou: 0, kisaku: 0, danger: 0 };
+
+// --- 画面更新処理 ---
+function loadTurn() {
+  if (currentTurn >= gameData.length) {
+    showEnding();
+    return;
+  }
+
+  const data = gameData[currentTurn];
+  document.getElementById("turn-title").innerText = `【第${data.turn}ターン】 ${data.title}`;
+  document.getElementById("question-text").innerText = data.question;
+  document.getElementById("result-container").style.display = "none";
+
+  const optionsBox = document.getElementById("options-container");
+  optionsBox.innerHTML = "";
+  optionsBox.style.display = "flex";
+
+  data.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.innerText = opt.text;
+    btn.onclick = () => selectOption(opt);
+    optionsBox.appendChild(btn);
+  });
+}
+
+// --- 選択肢クリック時 ---
+function selectOption(opt) {
+  stats[opt.type]++;
+  stats.danger += opt.danger;
+  updateStatus();
+
+  // 本能寺危険度100%での即死判定
+  if (stats.danger >= 100) {
+    showGameOver();
+    return;
+  }
+
+  document.getElementById("options-container").style.display = "none";
+  document.getElementById("result-text").innerText = opt.result;
+  document.getElementById("result-container").style.display = "block";
+}
+
+function nextTurn() {
+  currentTurn++;
+  loadTurn();
+}
+
+function updateStatus() {
+  document.getElementById("pt-maou").innerText = stats.maou;
+  document.getElementById("pt-syousai").innerText = stats.syousai;
+  document.getElementById("pt-sinchou").innerText = stats.sinchou;
+  document.getElementById("pt-kisaku").innerText = stats.kisaku;
+  document.getElementById("danger-degree").innerText = `${stats.danger}%`;
+}
+
+// --- 判定・エンディング処理 ---
+function showEnding() {
+  document.getElementById("options-container").style.display = "none";
+  document.getElementById("result-container").style.display = "none";
+  document.getElementById("turn-title").innerText = "【プロトタイプ体験版 終了】";
+
+  let highestPt = Object.keys(stats).reduce((a, b) => b === 'danger' ? a : (stats[a] > stats[b] ? a : b));
+  let endTitle = "";
+  let endDesc = "";
+
+  if (highestPt === "maou") {
+    endTitle = "【魔王覚醒エンド】";
+    endDesc = "史実通りの武力と覇気で着実に天下統一へと突き進んでいます！";
+  } else if (highestPt === "syousai") {
+    endTitle = "【大財閥エンド】";
+    endDesc = "莫大な資金力を背景に、戦わずして日本経済を裏から支配しました！";
+  } else if (highestPt === "sinchou") {
+    endTitle = "【堅実長寿エンド】";
+    endDesc = "無駄なリスクを徹底排除し、安全に領地を広げています！";
+  } else {
+    endTitle = "【カオスギャグエンド】";
+    endDesc = "常識破りの奇行で周囲を困惑させつつ、謎の勢いで歴史を塗り替えています！";
+  }
+
+  document.getElementById("question-text").innerHTML = `
+    <h3>${endTitle}</h3>
+    <p>${endDesc}</p>
+    <p>3ターンのプレイありがとうございました！プロトタイプの完成です。</p>
+    <button class="btn next-btn" onclick="location.reload()">最初からやり直す</button>
+  `;
+}
+
+function showGameOver() {
+  document.getElementById("options-container").style.display = "none";
+  document.getElementById("result-container").style.display = "none";
+  document.getElementById("turn-title").innerText = "【GAME OVER】";
+  document.getElementById("question-text").innerHTML = `
+    <h3 style="color:#ff4d4d;">【本能寺の変（早期勃発）】</h3>
+    <p>本能寺危険度が100%に達しました！明智光秀のストレスが限界突破し、謀反を起こされました……。</p>
+    <button class="btn next-btn" onclick="location.reload()">もう一度挑戦する</button>
+  `;
+}
+
+// 初回ロード
+loadTurn();
+</script>
+</body>
+</html>
