@@ -3,257 +3,218 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>歴史シミュレーション - 織田信長編</title>
+  <title>歴史なりきりシミュレーション - 織田信長編</title>
   <style>
-    body {
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-      background-color: #1a1a1d;
-      color: #eeeeee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .game-container {
-      background-color: #25262a;
-      border: 2px solid #4e4e50;
-      border-radius: 12px;
-      max-width: 600px;
-      width: 100%;
-      padding: 24px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    }
-    .header {
-      border-bottom: 2px solid #c5a059;
-      padding-bottom: 12px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .status-bar {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      background: #1a1a1d;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      margin-bottom: 20px;
-    }
-    .danger-text { color: #ff4d4d; font-weight: bold; }
-    .question-box {
-      font-size: 1.1em;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      min-height: 80px;
-    }
-    .options-box {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .btn {
-      background-color: #3b3c40;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.95em;
-      transition: all 0.2s;
-    }
-    .btn:hover {
-      background-color: #c5a059;
-      color: #000;
-      font-weight: bold;
-    }
-    .result-box {
-      background-color: #1a1a1d;
-      border-left: 4px solid #c5a059;
-      padding: 15px;
-      margin-top: 15px;
-      display: none;
-    }
-    .next-btn {
-      margin-top: 15px;
-      width: 100%;
-      background-color: #c5a059;
-      color: #000;
-      font-weight: bold;
-      text-align: center;
-    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; display: flex; justify-content: center; }
+    #game-container { background: #2a2a2a; border: 2px solid #444; border-radius: 10px; width: 100%; max-width: 600px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    h1 { font-size: 1.2rem; text-align: center; color: #f39c12; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
+    .status-bar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #111; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-bottom: 15px; }
+    .status-item span { font-weight: bold; color: #f1c40f; }
+    .danger { color: #e74c3c !important; }
+    #story-box { background: #333; padding: 15px; border-radius: 5px; min-height: 80px; margin-bottom: 15px; font-size: 0.95rem; line-height: 1.5; }
+    #reaction-box { background: #1e3799; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9rem; display: none; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    button { background: #34495e; color: #fff; border: 1px solid #5d6d7e; padding: 12px; border-radius: 5px; text-align: left; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+    button:hover { background: #4a6572; }
+    button:disabled { background: #2c3e50; opacity: 0.5; cursor: not-allowed; }
+    #next-btn, #restart-btn { background: #27ae60; text-align: center; font-weight: bold; margin-top: 10px; display: none; }
+    #next-btn:hover, #restart-btn:hover { background: #2ecc71; }
   </style>
 </head>
 <body>
 
-<div class="game-container">
-  <div class="header">
-    <h2 id="turn-title" style="margin:0; color:#c5a059;">織田信長編</h2>
-  </div>
-
+<div id="game-container">
+  <h1>織田信長編：天下への道 (プロトタイプ)</h1>
+  
   <div class="status-bar">
-    <div>魔王: <span id="pt-maou">0</span> | 商才: <span id="pt-syousai">0</span></div>
-    <div>慎重: <span id="pt-sinchou">0</span> | 奇策: <span id="pt-kisaku">0</span></div>
-    <div style="grid-column: span 2;">
-      本能寺危険度: <span id="danger-degree" class="danger-text">0%</span>
-    </div>
+    <div class="status-item">ターン: <span id="turn">1</span> / 3</div>
+    <div class="status-item">危険度: <span id="danger" class="danger">0%</span></div>
+    <div class="status-item">魔王Pt: <span id="pt-maou">0</span> | 商才Pt: <span id="pt-shousai">0</span></div>
+    <div class="status-item">慎重Pt: <span id="pt-shinchou">0</span> | 奇策Pt: <span id="pt-kisaku">0</span></div>
   </div>
 
-  <div id="question-text" class="question-box"></div>
+  <div id="story-box">読み込み中...</div>
+  <div id="reaction-box"></div>
 
-  <div id="options-container" class="options-box"></div>
-
-  <div id="result-container" class="result-box">
-    <div id="result-text"></div>
-    <button id="next-button" class="btn next-btn" onclick="nextTurn()">次のターンへ</button>
-  </div>
+  <div id="options-container" class="options"></div>
+  <button id="next-btn" onclick="nextTurn()">次のターンへ</button>
+  <button id="restart-btn" onclick="initGame()">もう一度遊ぶ</button>
 </div>
 
 <script>
-// --- ゲームデータ ---
-const gameData = [
+// ゲーム状態管理変数
+let currentTurn = 0;
+let stats = { maou: 0, shousai: 0, shinchou: 0, kisaku: 0, danger: 0 };
+let flags = { uiroCount: 0, mitsuhideHarassment: 0 };
+
+// 質問・選択肢データ
+const questions = [
   {
-    turn: 1,
-    title: "1560年 桶狭間の戦い",
-    question: "大変だ！今川義元が2万5千の大軍を率いて尾張へ攻め込んできたぞ！我が軍はわずか2千……どうする！？",
+    text: "【1560年 桶狭間の戦い】今川義元が2万5千の大軍で攻めてきた！どうする！？",
     options: [
-      { text: "A: 少数の精鋭を率い、雨に乗じて桶狭間へ奇襲をかける！", type: "maou", danger: 0, result: "豪雨のなか奇襲が完璧に決まり、義元の首級を挙げた！天下に名が轟く！" },
-      { text: "B: 清洲城に立てこもり、徹底的な籠城戦で敵の疲弊を待つ！", type: "sinchou", danger: 5, result: "兵糧攻めに耐え抜き、諦めた今川軍は撤退。地味だが確実な勝利だ。" },
-      { text: "C: 今川軍の兵糧を極秘に買い占め、空腹で動けなくする！", type: "syousai", danger: 5, result: "金の力で兵糧ルートを遮断！腹を空かせた今川軍は戦わずして自滅した！" },
-      { text: "D: ひとまず『人間五十年〜』と舞（敦盛）を踊って現実逃避する！", type: "kisaku", danger: 25, result: "豪快に踊り狂う姿を見て、今川軍は『なんか怖い…』と引き返していった！" }
+      { text: "A. 少数の精鋭で奇襲をかける！（史実）", type: "maou", danger: 0, reaction: "豪雨に乗じた奇襲が見事に成功！義元の首級を挙げた！" },
+      { text: "B. 清洲城に籠城して敵の疲弊を待つ（慎重）", type: "shinchou", danger: 5, reaction: "徹底的な籠城戦！耐え抜いた末に今川軍は撤退していった。" },
+      { text: "C. 今川軍の兵糧を極秘に買い占める（商才）", type: "shousai", danger: 5, reaction: "金の力で兵糧を遮断！空腹の今川軍は戦わずして自滅した！" },
+      { text: "D. 尾張名物『ういろ』5000個で買収（ギャグ）", type: "kisaku", danger: 15, flag: "uiro", reaction: "甘党の義元がういろに夢中な隙に包囲を突破した！" }
     ]
   },
   {
-    turn: 2,
-    title: "1567年 美濃攻略",
-    question: "斉藤家を倒し、美濃を手に入れたぞ！この地を治めるにあたり、新しい城下の名前や方針はどうする？",
+    text: "【1567年 美濃攻略】斉藤家を倒し美濃を手に入れた！城下の新しい方針は？",
     options: [
-      { text: "A: 中国の故事に倣い、この地を『岐阜』と改め天下布武を掲げる！", type: "maou", danger: 0, result: "『岐阜』の誕生だ！信長の覚悟に、家臣たちの士気が跳ね上がった！" },
-      { text: "B: 税金を免除する『楽市楽座』を開き、全国から商人を呼び込む！", type: "syousai", danger: 0, result: "全国から商人やモノが集まり、岐阜は日本一の大商業都市へ発展した！" },
-      { text: "C: そのまま『井ノ口』のままでいこう。無駄な改名は混乱の元だ。", type: "sinchou", danger: 0, result: "実に手堅い。住民たちも混乱することなく静かに城下町が発展していった。" },
-      { text: "D: 光秀のハゲ頭にあやかって『光秀タウン』にする！", type: "kisaku", danger: 30, result: "明智光秀が顔を真っ赤にして震えている……（光秀の殺意が跳ね上がった！）" }
+      { text: "A. 『岐阜』と改め天下布武を掲げる（史実）", type: "maou", danger: 0, reaction: "『岐阜』の誕生だ！家臣たちの士気が爆発的に跳ね上がった！" },
+      { text: "B. 『楽市楽座』を開き商人を呼び込む（商才）", type: "shousai", danger: 0, reaction: "全国から人とモノが集まり、日本一の大商業都市へ発展！" },
+      { text: "C. 名前は変えず『井ノ口』のまま（慎重）", type: "shinchou", danger: 0, reaction: "実に手堅い。住民も混乱せず静かに発展していった。" },
+      { text: "D. 光秀の頭にあやかり『光秀タウン』にする（ギャグ）", type: "kisaku", danger: 35, flag: "mitsuhide", reaction: "明智光秀が顔を真っ赤にして震えている…殺意が急上昇！" }
     ]
   },
   {
-    turn: 3,
-    title: "1568年 足利義昭と上洛",
-    question: "前将軍の弟・足利義昭が『自分を京都に連れて行き、将軍にしてほしい』と頼んできた。どう対応する？",
+    text: "【1568年 上洛】足利義昭から「将軍になりたいから京都へ連れて行け」と頼まれた。",
     options: [
-      { text: "A: 義昭を大義名分として掲げ、一気に京都へ上洛する！", type: "maou", danger: 0, result: "将軍の威光を背に京都へ入城！信長の名は一躍、全国へ知れ渡った！" },
-      { text: "B: 上洛のついでに、堺の豪商たちから莫大な矢銭（税金）を徴収する！", type: "syousai", danger: 5, result: "京都をおさえつつ莫大な資金を獲得！織田家の財政は盤石となった！" },
-      { text: "C: 京都は危険すぎる。義昭には尾張で大人しくしておいてもらう。", type: "sinchou", danger: 5, result: "京都の泥沼の権力争いを回避。着実に周辺の領有権を固めることに専念した。" },
-      { text: "D: 義昭に金のピチピチタイツを着せて、アイドルとして売り出す！", type: "kisaku", danger: 15, result: "京の都で『格調高き貴公子アイドル』として大ブレイク！謎の収入が入った！" }
+      { text: "A. 義昭を掲げて一気に京都へ上洛する！（史実）", type: "maou", danger: 0, reaction: "将軍の威光を背に入城！信長の名は一躍全国へ轟いた！" },
+      { text: "B. 堺の豪商から莫大な税金を徴収（商才）", type: "shousai", danger: 5, reaction: "京都をおさえつつ莫大な資金を獲得！織田家の財政は盤石！" },
+      { text: "C. 京都は危険すぎる。尾張で大人しくさせる（慎重）", type: "shinchou", danger: 5, reaction: "京都の権力争いを回避し、着実に周辺領土を固めた。" },
+      { text: "D. 再び『ういろ』を大量に献上して誤魔化す（ギャグ）", type: "kisaku", danger: 15, flag: "uiro", reaction: "義昭「ういろ美味い」…満足したのか京行きを忘れてくれた！" }
     ]
   }
 ];
 
-// --- ゲーム変数 ---
-let currentTurn = 0;
-let stats = { maou: 0, syousai: 0, sinchou: 0, kisaku: 0, danger: 0 };
+function initGame() {
+  currentTurn = 0;
+  stats = { maou: 0, shousai: 0, shinchou: 0, kisaku: 0, danger: 0 };
+  flags = { uiroCount: 0, mitsuhideHarassment: 0 };
+  
+  document.getElementById("restart-btn").style.display = "none";
+  document.getElementById("reaction-box").style.display = "none";
+  updateStatus();
+  showQuestion();
+}
 
-// --- 画面更新処理 ---
-function loadTurn() {
-  if (currentTurn >= gameData.length) {
-    showEnding();
-    return;
-  }
+function updateStatus() {
+  document.getElementById("turn").innerText = Math.min(currentTurn + 1, questions.length);
+  document.getElementById("danger").innerText = stats.danger + "%";
+  document.getElementById("pt-maou").innerText = stats.maou;
+  document.getElementById("pt-shousai").innerText = stats.shousai;
+  document.getElementById("pt-shinchou").innerText = stats.shinchou;
+  document.getElementById("pt-kisaku").innerText = stats.kisaku;
+}
 
-  const data = gameData[currentTurn];
-  document.getElementById("turn-title").innerText = `【第${data.turn}ターン】 ${data.title}`;
-  document.getElementById("question-text").innerText = data.question;
-  document.getElementById("result-container").style.display = "none";
-
-  const optionsBox = document.getElementById("options-container");
-  optionsBox.innerHTML = "";
-  optionsBox.style.display = "flex";
-
-  data.options.forEach(opt => {
+function showQuestion() {
+  const q = questions[currentTurn];
+  document.getElementById("story-box").innerText = q.text;
+  
+  const optContainer = document.getElementById("options-container");
+  optContainer.innerHTML = "";
+  
+  q.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.className = "btn";
     btn.innerText = opt.text;
     btn.onclick = () => selectOption(opt);
-    optionsBox.appendChild(btn);
+    optContainer.appendChild(btn);
   });
 }
 
-// --- 選択肢クリック時 ---
 function selectOption(opt) {
+  // ステータス加算
   stats[opt.type]++;
   stats.danger += opt.danger;
+  if(opt.flag === 'uiro') flags.uiroCount++;
+  if(opt.flag === 'mitsuhide') flags.mitsuhideHarassment++;
+
   updateStatus();
 
-  // 本能寺危険度100%での即死判定
-  if (stats.danger >= 100) {
-    showGameOver();
+  // 選択肢無効化
+  const buttons = document.querySelectorAll("#options-container button");
+  buttons.forEach(b => b.disabled = true);
+
+  // リアクション表示
+  const reactionBox = document.getElementById("reaction-box");
+  reactionBox.innerText = opt.reaction;
+  reactionBox.style.display = "block";
+
+  // 途中の即死チェック（条件3：バッドエンド）
+  if (stats.danger >= 50) { // プロトタイプ用に閾値を50%に調整
+    showEnding("【No.11 本能寺即死エンド】", "光秀の殺意が限界を突破！25ターンを待たず本能寺で討ち取られてしまった…");
     return;
   }
 
-  document.getElementById("options-container").style.display = "none";
-  document.getElementById("result-text").innerText = opt.result;
-  document.getElementById("result-container").style.display = "block";
+  document.getElementById("next-btn").style.display = "block";
 }
 
 function nextTurn() {
   currentTurn++;
-  loadTurn();
-}
+  document.getElementById("next-btn").style.display = "none";
+  document.getElementById("reaction-box").style.display = "none";
 
-function updateStatus() {
-  document.getElementById("pt-maou").innerText = stats.maou;
-  document.getElementById("pt-syousai").innerText = stats.syousai;
-  document.getElementById("pt-sinchou").innerText = stats.sinchou;
-  document.getElementById("pt-kisaku").innerText = stats.kisaku;
-  document.getElementById("danger-degree").innerText = `${stats.danger}%`;
-}
-
-// --- 判定・エンディング処理 ---
-function showEnding() {
-  document.getElementById("options-container").style.display = "none";
-  document.getElementById("result-container").style.display = "none";
-  document.getElementById("turn-title").innerText = "【プロトタイプ体験版 終了】";
-
-  let highestPt = Object.keys(stats).reduce((a, b) => b === 'danger' ? a : (stats[a] > stats[b] ? a : b));
-  let endTitle = "";
-  let endDesc = "";
-
-  if (highestPt === "maou") {
-    endTitle = "【魔王覚醒エンド】";
-    endDesc = "史実通りの武力と覇気で着実に天下統一へと突き進んでいます！";
-  } else if (highestPt === "syousai") {
-    endTitle = "【大財閥エンド】";
-    endDesc = "莫大な資金力を背景に、戦わずして日本経済を裏から支配しました！";
-  } else if (highestPt === "sinchou") {
-    endTitle = "【堅実長寿エンド】";
-    endDesc = "無駄なリスクを徹底排除し、安全に領地を広げています！";
+  if (currentTurn < questions.length) {
+    showQuestion();
   } else {
-    endTitle = "【カオスギャグエンド】";
-    endDesc = "常識破りの奇行で周囲を困惑させつつ、謎の勢いで歴史を塗り替えています！";
+    evaluateEnding();
+  }
+}
+
+// 全17条件の判定ロジック
+function evaluateEnding() {
+  document.getElementById("options-container").innerHTML = "";
+
+  // 条件4: フラグ優先エンディング
+  if (flags.uiroCount >= 2) {
+    showEnding("【No.14 ういろマスターエンド】", "戦国時代を捨て、全国に和菓子屋『織田ういろ』を展開。天下人ならぬ和菓子王となった！");
+    return;
+  }
+  if (flags.mitsuhideHarassment >= 1 && stats.kisaku >= 2) {
+    showEnding("【No.15 光秀激推しエンド】", "いじり続けた結果、奇跡的に光秀と最高の絆が芽生え、二人三脚でドタバタ天下統一！");
+    return;
   }
 
-  document.getElementById("question-text").innerHTML = `
-    <h3>${endTitle}</h3>
-    <p>${endDesc}</p>
-    <p>3ターンのプレイありがとうございました！プロトタイプの完成です。</p>
-    <button class="btn next-btn" onclick="location.reload()">最初からやり直す</button>
-  `;
+  // 条件3: 特定パラメーター0などの特殊バッドエンド
+  if (stats.shousai === 0 && stats.shinchou === 0) {
+    showEnding("【No.12 破産エンド】", "資金繰りと安全対策を怠った結果、織田家の金庫が底をつき夜逃げすることになった…");
+    return;
+  }
+
+  // 条件2: ハイブリッド（複合）エンディング
+  if (stats.maou >= 1 && stats.shousai >= 1 && stats.maou === stats.shousai) {
+    showEnding("【No.05 軍事複合企業エンド】", "圧倒的な武力と莫大な資金力を融合させ、超巨大「織田帝国」を建国！");
+    return;
+  }
+  if (stats.shinchou >= 1 && stats.shousai >= 1 && stats.shinchou === stats.shousai) {
+    showEnding("【No.06 暗黒のフィクサーエンド】", "表舞台には一切出ず、裏から経済と全国の大名をコントロールする影の支配者となった。");
+    return;
+  }
+  if (stats.maou >= 1 && stats.kisaku >= 1 && stats.maou === stats.kisaku) {
+    showEnding("【No.07 天下の傾奇者エンド】", "ド派手で常識破りな行動を貫き、後世まで語り継がれる最強の破天荒武将となった！");
+    return;
+  }
+
+  // 条件1: 属性特化メインエンディング
+  const maxPt = Math.max(stats.maou, stats.shousai, stats.shinchou, stats.kisaku);
+  
+  // 条件5: バランス型（全て1ポイントずつ等）
+  if (stats.maou === stats.shousai && stats.shousai === stats.shinchou) {
+    showEnding("【No.17 凡庸エンド】", "全体的に平均的な判断に終始し、特に目立った功績を残せず歴史の波に埋もれていった…");
+    return;
+  }
+
+  if (stats.maou === maxPt) {
+    showEnding("【No.01 魔王エンド】", "史実を超える圧倒的なカリスマと武力で、完全なる天下統一を成し遂げた！");
+  } else if (stats.shousai === maxPt) {
+    showEnding("【No.02 大財閥エンド】", "日本中の流通と金をおさえ、戦わずして「金の力」で天下を完全支配した！");
+  } else if (stats.shinchou === maxPt) {
+    showEnding("【No.03 長寿平和エンド】", "無理な戦を徹底的に避け、80歳まで平和に長生きして天寿をまっとうした。");
+  } else if (stats.kisaku === maxPt) {
+    showEnding("【No.04 世界変革ギャグエンド】", "あなたの奇行が世界標準となり、歴史の教科書がカオスな内容に書き換わった！");
+  }
 }
 
-function showGameOver() {
-  document.getElementById("options-container").style.display = "none";
-  document.getElementById("result-container").style.display = "none";
-  document.getElementById("turn-title").innerText = "【GAME OVER】";
-  document.getElementById("question-text").innerHTML = `
-    <h3 style="color:#ff4d4d;">【本能寺の変（早期勃発）】</h3>
-    <p>本能寺危険度が100%に達しました！明智光秀のストレスが限界突破し、謀反を起こされました……。</p>
-    <button class="btn next-btn" onclick="location.reload()">もう一度挑戦する</button>
-  `;
+function showEnding(title, detail) {
+  document.getElementById("story-box").innerHTML = `<h2 style="color:#f39c12;margin:0 0 10px 0;">${title}</h2><p>${detail}</p>`;
+  document.getElementById("options-container").innerHTML = "";
+  document.getElementById("next-btn").style.display = "none";
+  document.getElementById("restart-btn").style.display = "block";
 }
 
-// 初回ロード
-loadTurn();
+// ゲーム開始
+initGame();
 </script>
 </body>
 </html>
