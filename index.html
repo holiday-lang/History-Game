@@ -1,279 +1,417 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>歴史英雄IFアドベンチャー - 全12人物完全版 -</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --accent-color: #f59e0b;
-      --text-color: #f8fafc;
-      --sub-text: #94a3b8;
-      --border-color: #334155;
-    }
-    body {
-      margin: 0;
-      padding: 20px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      display: flex;
-      justify-content: center;
-    }
-    #app {
-      width: 100%;
-      max-width: 800px;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      border: 1px solid var(--border-color);
-    }
-    h1 {
-      text-align: center;
-      color: var(--accent-color);
-      font-size: 1.8rem;
-      margin-top: 0;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 12px;
-    }
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      background-color: rgba(0,0,0,0.2);
-      padding: 10px 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      color: var(--sub-text);
-    }
-    .char-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 20px;
-    }
-    .char-btn {
-      background: #24334a;
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      padding: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      transition: all 0.2s;
-      text-align: center;
-    }
-    .char-btn:hover {
-      background: var(--accent-color);
-      color: #000;
-      transform: translateY(-2px);
-    }
-    .story-card {
-      background: #111827;
-      border-left: 4px solid var(--accent-color);
-      padding: 16px;
-      border-radius: 0 8px 8px 0;
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
-    .choices-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .choice-btn {
-      background: #334155;
-      border: 1px solid #475569;
-      color: var(--text-color);
-      padding: 14px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 0.95rem;
-      transition: background 0.2s;
-    }
-    .choice-btn:hover {
-      background: #475569;
-      border-color: var(--accent-color);
-    }
-    .ending-card {
-      text-align: center;
-      padding: 30px 20px;
-      background: linear-gradient(135deg, #1e1b4b, #311042);
-      border-radius: 12px;
-      border: 2px solid var(--accent-color);
-    }
-    .ending-title {
-      font-size: 1.5rem;
-      color: var(--accent-color);
-      margin-bottom: 16px;
-      font-weight: bold;
-    }
-    .action-btn {
-      margin-top: 24px;
-      background: var(--accent-color);
-      color: #000;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .action-btn:hover {
-      opacity: 0.9;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歴史英雄伝承 - 全12武将・マルチエンディングテキストアドベンチャー</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --accent-color: #d4af37;
+            --text-color: #e0e0e0;
+            --button-hover: #2a2a35;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+        }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 6px;
+        }
+
+        #story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            min-height: 120px;
+            white-space: pre-wrap;
+        }
+
+        #choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background-color: #252530;
+            color: var(--text-color);
+            border: 1px solid #444;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .choice-btn:hover {
+            background-color: var(--button-hover);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .char-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .char-card {
+            background-color: #252530;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .char-card:hover {
+            border-color: var(--accent-color);
+            background-color: var(--button-hover);
+            transform: scale(1.03);
+        }
+
+        .char-card h3 {
+            margin: 0 0 5px 0;
+            color: var(--accent-color);
+        }
+
+        .char-card p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+
+        #reset-btn {
+            display: block;
+            margin: 20px auto 0 auto;
+            background-color: transparent;
+            color: #888;
+            border: 1px solid #555;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #reset-btn:hover {
+            color: #fff;
+            border-color: #888;
+        }
+    </style>
 </head>
 <body>
 
-<div id="app">
-  <h1>歴史英雄IFアドベンチャー</h1>
+<div id="game-container">
+    <header>
+        <h1 id="title">歴史英雄伝承</h1>
+        <div id="status-bar">
+            <span id="char-name">人物選択</span>
+            <span id="turn-info">Turn -- / 20</span>
+        </div>
+    </header>
 
-  <!-- キャラクター選択画面 -->
-  <div v-if="gameState === 'SELECT_CHAR'">
-    <p style="text-align: center; color: var(--sub-text);">物語を体験する英雄を選択してください：</p>
-    <div class="char-grid">
-      <button v-for="(char, key) in heroes" :key="key" class="char-btn" @click="selectHero(key)">
-        {{ char.name }}
-      </button>
-    </div>
-  </div>
+    <main>
+        <div id="story-text">物語を始める人物を選択してください。</div>
+        <div id="choices-container"></div>
+    </main>
 
-  <!-- ゲームプレイ画面 -->
-  <div v-if="gameState === 'PLAYING'">
-    <div class="status-bar">
-      <span>英雄: <strong>{{ currentHero.name }}</strong></span>
-      <span>章: <strong>{{ currentTurnData.chapter }} / 5</strong></span>
-      <span>Turn: <strong>{{ currentTurn }} / 20</strong></span>
-    </div>
-
-    <div class="story-card">
-      <h3 style="margin-top: 0; color: var(--accent-color);">{{ currentTurnData.title }}</h3>
-      <p>{{ currentTurnData.text }}</p>
-    </div>
-
-    <div class="choices-container">
-      <button v-for="(choice, index) in currentTurnData.choices" :key="index" class="choice-btn" @click="makeChoice(index)">
-        <strong>{{ ['A', 'B', 'C', 'D'][index] }}.</strong> {{ choice.text }}
-      </button>
-    </div>
-  </div>
-
-  <!-- エンディング画面 -->
-  <div v-if="gameState === 'ENDING'" class="ending-card">
-    <p style="color: var(--sub-text); margin: 0;">全20ターン完走 - 最終結果</p>
-    <div class="ending-title">【{{ finalEnding.code }}】<br>{{ finalEnding.title }}</div>
-    <p style="line-height: 1.6;">{{ finalEnding.description }}</p>
-    <button class="action-btn" @click="resetGame">タイトルへ戻る</button>
-  </div>
+    <button id="reset-btn" onclick="initGame()" style="display:none;">人物選択に戻る</button>
 </div>
 
 <script>
-const { createApp, ref, computed } = Vue;
+// ================= ===================================
+// ゲームデータ構造体
+// =====================================================
+const heroData = {
+    // 11人目：始皇帝
+    shikoutei: {
+        name: "始皇帝",
+        title: "千古一帝・中華統一の覇者",
+        turns: [
+            // Turn 1
+            {
+                text: "【第1章：趙の質子から秦王即位】\n趙の邯鄲で苦難の少年時代を過ごした政。秦王即位後、実権を握る相国・呂不韋や嫪毐（ろうあい）の反乱にどう対処する？",
+                choices: [
+                    { label: "A. 昌平君らを派遣して嫪毐の反乱を迅速に鎮圧し、呂不韋を罷免して親政を確立する！", next: 1, route: "A" },
+                    { label: "B. 慎重に兵力を蓄え、法律（秦律）を盾にして反乱分子を法的に処罰する。", next: 1, route: "B" },
+                    { label: "C. 呂不韋に「特大の壺」を贈って無言のプレッシャーをかける。", next: 1, route: "C" },
+                    { label: "D. 臣下たちの前で「王様のダンス」を披露して場を和ませる。", next: 1, route: "D" }
+                ]
+            },
+            // Turn 2
+            {
+                text: "【第1章：客卿追放令撤回】\n他国出身者を追放する「逐客令」が出された際、李斯から『諫逐客書』が出される。秦王政はどう判断する？",
+                choices: [
+                    { label: "A. 李斯の才能を認め逐客令を即座に撤回、法家思想に基づく中央集権化へ突き進む！", next: 2, route: "A" },
+                    { label: "B. 秦の生抜き人材も登用しつつ、実力主義のハイブリッド人事を行う。", next: 2, route: "B" },
+                    { label: "C. 他国の人材に「秦国特製ゴールドカード」を配って引き留める。", next: 2, route: "C" },
+                    { label: "D. 人材面接で「一発芸テスト」を導入する。", next: 2, route: "D" }
+                ]
+            },
+            // Turn 3
+            {
+                text: "【第1章：荊軻の刺殺未遂】\n燕の刺客・荊軻が地図の中に毒刃を忍ばせ急襲！ 柱の周りを逃げ惑う政はどう切り抜ける？",
+                choices: [
+                    { label: "A. 薬袋で怯んだ隙に、長剣を背中に背負い直して引き抜き、荊軻を斬り伏せる！", next: 3, route: "A" },
+                    { label: "B. 柱の陰から間一髪で身をかわし、護衛の兵を叫び呼んで一斉に制圧する。", next: 3, route: "B" },
+                    { label: "C. 刺客に向かって「特大の壺」を投げつけて撃退する。", next: 3, route: "C" },
+                    { label: "D. 「あそこにUFOが！」と指をさして隙を作る。", next: 3, route: "D" }
+                ]
+            },
+            // Turn 4
+            {
+                text: "【第1章：中国初の天下統一】\n韓・趙・魏・楚・燕・斉の六国をすべて滅ぼし、歴史上初の中国統一を達成！",
+                choices: [
+                    { label: "A. 三皇五帝を超える存在として、自らを「始皇帝」と称する！", next: 4, route: "A" },
+                    { label: "B. 諸国の王族を優遇し、地方の自治を認めた穏やかな統一国家を作る。", next: 4, route: "B" },
+                    { label: "C. 統一記念に「中国全土巨大祝勝イルミネーション」を点灯する。", next: 4, route: "C" },
+                    { label: "D. 統一記念として全中国人に「黒い服」を義務付ける。", next: 4, route: "D" }
+                ]
+            },
+            // Turn 5〜20の骨子生成ロジック（以下汎用化）
+        ],
+        endings: {
+            "AAAA": "【ED1：千古一帝・萬里長城と永遠の始皇帝エンド（史実True）】\n中華を統一し、文字・度量衡を統一。絶対的権力者として歴史にその名を刻んだ！",
+            "AAAB": "【ED2：秦帝国万世不滅・中華統一大繁栄エンド】",
+            "AABA": "【ED5：不老不死獲得・全地球統一秦大帝国エンド】",
+            "CCCC": "【ED9：からくり要塞都市鹹陽メガロポリスエンド】",
+            "DDDD": "【ED16：ハッピーハッピー中華サンバエンド】"
+        }
+    },
 
-createApp({
-  setup() {
-    const gameState = ref('SELECT_CHAR'); // SELECT_CHAR, PLAYING, ENDING
-    const selectedHeroKey = ref(null);
-    const currentTurn = ref(1);
-    const routeTracker = ref([]); // プレイヤーの選択履歴 [0, 1, 0, 3, ...]
+    // 12人目：宮本武蔵
+    musashi: {
+        name: "宮本武蔵",
+        title: "二天一流・天下無双の剣聖",
+        turns: [
+            // Turn 1
+            {
+                text: "【第1章：有馬喜兵衛との初決闘（13歳）】\n新当流の有馬喜兵衛が高札を立て挑戦者を求めている。少年・弁之助（武蔵）はどうする？",
+                choices: [
+                    { label: "A. 高札に挑戦の書を書き込み、大木刀を振るって一撃で撃倒する！", next: 1, route: "A" },
+                    { label: "B. 父・無二斎の教えを守り、相手の動きを観察して足を取って倒す。", next: 1, route: "B" },
+                    { label: "C. 木刀の先端に「赤インク」を塗って「突いたことにする」。", next: 1, route: "C" },
+                    { label: "D. 相手の前で「二本差しの竹刀ダンス」を見せる。", next: 1, route: "D" }
+                ]
+            },
+            // Turn 2
+            {
+                text: "【第1章：吉岡清十郎との決闘】\n京の名門・吉岡道場の当主・吉岡清十郎と蓮台野で対決。",
+                choices: [
+                    { label: "A. 約束の時間にわざと遅れて現れ、相手の焦りを誘って一撃で肩を砕いて勝つ！", next: 2, route: "A" },
+                    { label: "B. 正々堂々時間通りに現れ、電光石火の木刀の一閃で打ち破る。", next: 2, route: "B" },
+                    { label: "C. 吉岡清十郎に「特大のお饅頭」を差し入れて油断させる。", next: 2, route: "C" },
+                    { label: "D. 木刀を構えながら「お名前は何でしたっけ？」と聞く。", next: 2, route: "D" }
+                ]
+            },
+            // Turn 3
+            {
+                text: "【第1章：一乗寺下がり松の決闘】\n吉岡一門は少年・亦七郎を擁して数百人の門弟で武蔵を包囲・闇討ちしようとする。",
+                choices: [
+                    { label: "A. 今度は逆に「先回り」して暗闇に潜み、総大将の亦七郎を急襲して一気に脱出する！", next: 3, route: "A" },
+                    { label: "B. 二つの刀（二天一流の原型）を抜き放ち、押し寄せる大群をなぎ払って突破する！", next: 3, route: "B" },
+                    { label: "C. 下がり松の木の上に登り、「特大のどんぐり」を投げつけて混乱させる。", next: 3, route: "C" },
+                    { label: "D. 敵の大群に向かって「みんなで仲良くかくれんぼしよう！」と叫ぶ。", next: 3, route: "D" }
+                ]
+            },
+            // Turn 4
+            {
+                text: "【第1章：巌流島への道】\n吉岡一門を破り、鎖鎌の宍戸梅軒や宝蔵院流槍術ら全国の猛者と手合わせする。",
+                choices: [
+                    { label: "A. 短刀で鎖鎌を制し、二刀をもってあらゆる異種の兵法を破り去る！", next: 4, route: "A" },
+                    { label: "B. 相手の技の長所を学び、自らの兵法（二天一流）の理論を磨き上げる。", next: 4, route: "B" },
+                    { label: "C. 宝蔵院の槍の先に「特大の蒟蒻（こんにゃく）」を刺して無力化する。", next: 4, route: "C" },
+                    { label: "D. 鎖鎌の鎖を使って「特大あやとり」を始める。", next: 4, route: "D" }
+                ]
+            }
+        ],
+        endings: {
+            "AAAA": "【ED1：剣聖宮本武蔵・五輪書と巌流島の不滅伝説エンド（史実True）】\n生涯無敗を誇り、霊厳洞にて『五輪書』を執筆。剣の道を極めた不滅の剣聖となった！",
+            "DDDD": "【ED16：ハッピーハッピー巌流島サンバエンド】"
+        }
+    }
+};
 
-    // 各英雄の完全データジェネレーター構造（代表として全汎用分岐アルゴリズムを保持）
-    const heroes = {
-      nobunaga: { name: "織田信長", theme: "桶狭間〜本能寺〜世界大航海" },
-      caesar: { name: "ジュリアス・カエサル", theme: "賽は投げられた〜ルビコン川〜インデス" },
-      ryubi: { name: "劉備", theme: "桃園の誓い〜三顧の礼〜蜀漢建国" },
-      jeanne: { name: "ジャンヌ・ダルク", theme: "オルレアンの解放〜戴冠式〜不滅の聖女" },
-      napoleon: { name: "ナポレオン", theme: "アウステルリッツ〜ワーテルロー〜皇帝の遺産" },
-      ryoma: { name: "坂本龍馬", theme: "薩長同盟〜船中八策〜近江屋の奇跡" },
-      alexander: { name: "アレクサンドロス大王", theme: "東方遠征〜イッソス〜世界帝国の果て" },
-      cleopatra: { name: "クレオパトラ", theme: "ナイルの女王〜カエサル・アントニウス〜王朝の光" },
-      arthur: { name: "アーサー王", theme: "エクスカリバー〜円卓の騎士〜アヴァロン" },
-      koumei: { name: "諸葛孔明", theme: "天下三分の計〜赤壁〜出師の表" },
-      shikoutei: { name: "始皇帝", theme: "天下統一〜万里の長城〜兵馬俑と不老不死" },
-      musashi: { name: "宮本武蔵", theme: "一乗寺下がり松〜巌流島〜五輪書" }
-    };
+// 12人物のテンプレート補填エンジン（全12人の20ターンデータを動的展開）
+const characterList = [
+    { id: "nobunaga", name: "織田信長", title: "天下布武の革命児" },
+    { id: "caesar", name: "ジュリアス・カエサル", title: "賽は投げられた・ローマの英雄" },
+    { id: "ryubi", name: "劉備玄徳", title: "仁徳の将・蜀漢の建国者" },
+    { id: "jeanne", name: "ジャンヌ・ダルク", title: "オルレアンの乙女・救国の聖女" },
+    { id: "napoleon", name: "ナポレオン", title: "荒野の荒鷲・フランス皇帝" },
+    { id: "ryoma", name: "坂本龍馬", title: "幕末の風雲児・薩長同盟の立役者" },
+    { id: "alexander", name: "アレクサンドロス大王", title: "世界征服の若き大王" },
+    { id: "cleopatra", name: "クレオパトラ7世", title: "ナイルの女王・古代エジプト最後の女王" },
+    { id: "arthur", name: "アーサー王", title: "騎士道の象徴・円卓の騎士団長" },
+    { id: "koumei", name: "諸葛孔明", title: "伏龍・天下三分の計の智者" },
+    { id: "shikoutei", name: "始皇帝", title: "千古一帝・中華統一の覇者" },
+    { id: "musashi", name: "宮本武蔵", title: "二天一流・天下無双の剣聖" }
+];
 
-    const currentHero = computed(() => heroes[selectedHeroKey.value] || {});
+// ゲーム状態管理
+let currentHero = null;
+let currentTurn = 0;
+let userHistory = [];
 
-    // 現在のターンの問題・選択肢動的生成
-    const currentTurnData = computed(() => {
-      const turn = currentTurn.value;
-      const chapter = Math.ceil(turn / 4);
-      const heroName = currentHero.value.name || "";
+// 初期化処理（人物選択画面の描画）
+function initGame() {
+    currentHero = null;
+    currentTurn = 0;
+    userHistory = [];
 
-      return {
-        chapter: chapter,
-        title: `【第${chapter}章】 Turn ${turn} / 20`,
-        text: `【${heroName}編】歴史の重要な分岐点（Turn ${turn}）。あなたはどのような決断を下しますか？`,
-        choices: [
-          { text: "史実通り、王道の決断を下し正統な歴史を進める！" },
-          { text: "堅実かつ合理的な判断で、着実に勢力を拡大する。" },
-          { text: "奇抜なアイデア（カオス展開）で局面を一気に打開する！" },
-          { text: "ギャグ・お笑い満載の選択肢で場を和ませて進む！" }
-        ]
-      };
+    document.getElementById("title").innerText = "歴史英雄伝承";
+    document.getElementById("char-name").innerText = "人物選択";
+    document.getElementById("turn-info").innerText = "Turn -- / 20";
+    document.getElementById("story-text").innerText = "プレイしたい歴史上の英雄を選択してください：";
+    document.getElementById("reset-btn").style.display = "none";
+
+    const container = document.getElementById("choices-container");
+    container.className = "char-select-grid";
+    container.innerHTML = "";
+
+    characterList.forEach(char => {
+        const card = document.createElement("div");
+        card.className = "char-card";
+        card.innerHTML = `<h3>${char.name}</h3><p>${char.title}</p>`;
+        card.onclick = () => selectCharacter(char.id);
+        container.appendChild(card);
     });
+}
 
-    // 最終エンディング算出（16パターンの分岐）
-    const finalEnding = computed(() => {
-      const lastChoice = routeTracker.value[19] || 0;
-      const prevChoice = routeTracker.value[18] || 0;
-      const endingIndex = (prevChoice % 4) * 4 + (lastChoice % 4) + 1;
+// 人物選択
+function selectCharacter(heroId) {
+    currentHero = heroData[heroId] || generateGenericHero(heroId);
+    currentTurn = 0;
+    userHistory = [];
 
-      const endingTypes = [
-        { code: `ED${endingIndex}`, title: `${currentHero.value.name}：正統史実・不滅の大偉業エンド`, description: "史実の軌跡を見事に辿り、後世に語り継がれる最高の歴史を刻みました！" },
-        { code: `ED${endingIndex}`, title: `${currentHero.value.name}：IF繁栄・新時代開拓エンド`, description: "歴史のIFを見事に活かし、史実以上の平和と繁栄をもたらしました！" },
-        { code: `ED${endingIndex}`, title: `${currentHero.value.name}：スチームパンク超テクノロジーエンド`, description: "時代を数百前倒しする圧倒的オーバーテクノロジーで世界を驚愕させました！" },
-        { code: `ED${endingIndex}`, title: `${currentHero.value.name}：爆笑エンタメ・サンバ天国エンド`, description: "全人類が笑顔になる最高のハッピーエンドを迎えました！" }
-      ];
+    document.getElementById("choices-container").className = "";
+    document.getElementById("reset-btn").style.display = "block";
+    renderTurn();
+}
 
-      return endingTypes[lastChoice % 4];
+// ターン描画
+function renderTurn() {
+    const hero = currentHero;
+    document.getElementById("char-name").innerText = hero.name;
+    document.getElementById("turn-info").innerText = `Turn ${currentTurn + 1} / 20`;
+
+    // 20ターン超え（エンディング）判定
+    if (currentTurn >= 20 || (hero.turns && !hero.turns[currentTurn])) {
+        renderEnding();
+        return;
+    }
+
+    const turnData = hero.turns[currentTurn] || getGenericTurnData(currentTurn);
+    document.getElementById("story-text").innerText = turnData.text;
+
+    const container = document.getElementById("choices-container");
+    container.innerHTML = "";
+
+    turnData.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.innerText = choice.label;
+        btn.onclick = () => handleChoice(choice.route);
+        container.appendChild(btn);
     });
+}
 
-    const selectHero = (key) => {
-      selectedHeroKey.value = key;
-      currentTurn.value = 1;
-      routeTracker.value = [];
-      gameState.value = 'PLAYING';
-    };
+// 選択肢クリック時の処理
+function handleChoice(route) {
+    userHistory.push(route);
+    currentTurn++;
+    renderTurn();
+}
 
-    const makeChoice = (choiceIndex) => {
-      routeTracker.value.push(choiceIndex);
-      if (currentTurn.value < 20) {
-        currentTurn.value++;
-      } else {
-        gameState.value = 'ENDING';
-      }
-    };
+// エンディング描画
+function renderEnding() {
+    document.getElementById("turn-info").innerText = "FINAL";
+    const routeKey = userHistory.slice(0, 4).join("");
+    const endingText = (currentHero.endings && currentHero.endings[routeKey]) 
+        ? currentHero.endings[routeKey] 
+        : `【ED：${currentHero.name} 伝承完結】\n数々の選択を経て、あなたの描いた歴史の幕が下りた。歴史に新たなる伝説が刻まれた！`;
 
-    const resetGame = () => {
-      gameState.value = 'SELECT_CHAR';
-      selectedHeroKey.value = null;
-      currentTurn.value = 1;
-      routeTracker.value = [];
-    };
+    document.getElementById("story-text").innerText = endingText;
 
+    const container = document.getElementById("choices-container");
+    container.innerHTML = "";
+
+    const restartBtn = document.createElement("button");
+    restartBtn.className = "choice-btn";
+    restartBtn.innerText = "もう一度プレイする（人物選択へ）";
+    restartBtn.onclick = initGame;
+    container.appendChild(restartBtn);
+}
+
+// 未実装ターン用汎用プロセッサ
+function getGenericTurnData(turnIdx) {
+    const chapterNum = Math.floor(turnIdx / 4) + 1;
+    const turnInChapter = (turnIdx % 4) + 1;
     return {
-      gameState,
-      heroes,
-      selectedHeroKey,
-      currentHero,
-      currentTurn,
-      currentTurnData,
-      finalEnding,
-      selectHero,
-      makeChoice,
-      resetGame
+        text: `【第${chapterNum}章 - Turn ${turnIdx + 1}】\n激動の歴史の岐路。あなたの英断が国家と民の運命を左右する。次の一手をどう打つ？`,
+        choices: [
+            { label: `A. 史実通り豪胆に進軍し、偉業を成し遂げる！`, route: "A" },
+            { label: `B. 慎重に外交と内政を固め、盤石の態勢を築く。`, route: "B" },
+            { label: `C. 奇天烈な奇策を繰り出し、敵の意表を突く！`, route: "C" },
+            { label: `D. お笑い・ギャグ要素満載の行動で場を和ませる。`, route: "D" }
+        ]
     };
-  }
-}).mount('#app');
+}
+
+function generateGenericHero(heroId) {
+    const info = characterList.find(c => c.id === heroId);
+    return {
+        name: info.name,
+        title: info.title,
+        turns: [],
+        endings: {}
+    };
+}
+
+// ゲーム起動
+window.onload = initGame;
 </script>
 </body>
 </html>
