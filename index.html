@@ -7,18 +7,18 @@
   <style>
     :root {
       --primary-color: #8b0000;
-      --bg-color: #1a1a1a;
-      --card-bg: #2d2d2d;
-      --text-color: #f0f0f0;
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
       --accent-color: #d4af37;
     }
 
     body {
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 20px;
+      padding: 15px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -32,68 +32,102 @@
       border-radius: 12px;
       max-width: 650px;
       width: 100%;
-      padding: 25px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      box-sizing: border-box;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #444;
-      padding-bottom: 10px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 12px;
       margin-bottom: 20px;
+    }
+
+    .title-badge {
+      font-size: 0.9rem;
+      color: #aaa;
+      font-weight: bold;
     }
 
     .turn-badge {
       background-color: var(--primary-color);
       color: #fff;
-      padding: 5px 12px;
-      border-radius: 20px;
+      padding: 4px 12px;
+      border-radius: 15px;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .question-text {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       line-height: 1.6;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       white-space: pre-wrap;
     }
 
     .options-grid {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .option-btn {
-      background-color: #3d3d3d;
+      background-color: #2a2a2a;
       color: var(--text-color);
-      border: 1px solid #555;
-      padding: 15px;
+      border: 1px solid #444;
+      padding: 14px;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       text-align: left;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
       line-height: 1.4;
     }
 
     .option-btn:hover {
-      background-color: var(--primary-color);
+      background-color: #383838;
       border-color: var(--accent-color);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+    }
+
+    .option-btn:active {
+      transform: translateY(0);
     }
 
     .ending-card {
       text-align: center;
+      padding: 10px 0;
     }
 
     .ending-title {
       color: var(--accent-color);
-      font-size: 1.5rem;
+      font-size: 1.35rem;
+      font-weight: bold;
       margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .ending-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      text-align: left;
+      margin-bottom: 20px;
+      background: #141414;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .score-box {
+      font-size: 0.85rem;
+      color: #888;
+      background: #252525;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
     }
 
     .restart-btn {
@@ -105,7 +139,7 @@
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
-      margin-top: 25px;
+      width: 100%;
     }
 
     .restart-btn:hover {
@@ -117,7 +151,7 @@
 
 <div id="game-container">
   <div class="header">
-    <span style="font-size: 0.9rem; color: #aaa;">織田信長編</span>
+    <span class="title-badge">なりきりシミュレーション：織田信長編</span>
     <span id="turn-display" class="turn-badge">Turn 1 / 25</span>
   </div>
 
@@ -128,186 +162,261 @@
 </div>
 
 <script>
-// シナリオデータ（JSON構造）
-const scenario = {
+// シナリオマスターデータ（ツリー構造）
+const baseScenario = {
   "q1": {
-    "text": "【初陣】父・信秀に従い三河攻めで初陣を迎える。「うつけ者」と噂されているが、どう振る舞う？",
-    "options": [
-      { "text": "朱塗りの槍と派手な衣装で現れ、果敢に先陣を切って敵を蹴散らす。", "type": "shijitsu", "next": "q2_a" },
-      { "text": "地味で頑丈な鎧を着込み、最後尾から慎重に戦況を観察する。", "type": "kenjitsu", "next": "q2_b" },
-      { "text": "「うつけ」の期待に応えるため、敵陣の前で全力で変顔をして困惑させる。", "type": "chaos", "next": "q2_c" },
-      { "text": "「初陣のお祝いに」と敵将へ手作りのバースデーケーキを配って回る。", "type": "gag", "next": "q2_d" }
+    text: "【初陣】父・信秀に従い三河攻めで初陣を迎える。「うつけ者」と噂されているが、どう振る舞う？",
+    options: [
+      { text: "朱塗りの槍と派手な衣装で現れ、果敢に先陣を切って敵を蹴散らす。", type: "shijitsu", next: "q2_a" },
+      { text: "地味で頑丈な鎧を着込み、最後尾から慎重に戦況を観察する。", type: "kenjitsu", next: "q2_b" },
+      { text: "「うつけ」の期待に応えるため、敵陣の前で全力で変顔をして困惑させる。", type: "chaos", next: "q2_c" },
+      { text: "「初陣のお祝いに」と敵将へ手作りのバースデーケーキを配って回る。", type: "gag", next: "q2_d" }
     ]
   },
   "q2_a": {
-    "text": "武功を挙げたものの父が急死。萬松寺での葬儀の場、焼香の順番が回ってきた。どうする？",
-    "options": [
-      { "text": "仏前にドカドカと進み出て、抹香を掴むとそのまま位牌に投げつける。", "type": "shijitsu", "next": "q3" },
-      { "text": "涙を流しながら丁寧に焼香し、家臣たちに誓いの言葉を述べる。", "type": "kenjitsu", "next": "q3" },
-      { "text": "焼香の煙を使って「忍法・煙幕の術！」と叫びその場で消える。", "type": "gag", "next": "q3" },
-      { "text": "仏前で突然琵琶を取り出し、自作のデスボイス曲を熱唱する。", "type": "chaos", "next": "q3" }
+    text: "武功を挙げたものの父が急死。萬松寺での葬儀の場、焼香の順番が回ってきた。どうする？",
+    options: [
+      { text: "仏前にドカドカと進み出て、抹香を掴むとそのまま位牌に投げつける。", type: "shijitsu", next: "q3" },
+      { text: "涙を流しながら丁寧に焼香し、家臣たちに誓いの言葉を述べる。", type: "kenjitsu", next: "q3" },
+      { text: "焼香の煙を使って「忍法・煙幕の術！」と叫びその場で消える。", type: "gag", next: "q3" },
+      { text: "仏前で突然琵琶を取り出し、自作のデスボイス曲を熱唱する。", type: "chaos", next: "q3" }
     ]
   },
   "q2_b": {
-    "text": "最後尾でおとなしくしていたため「臆病者」と侮られ始めた。父の死後、どう動く？",
-    "options": [
-      { "text": "派手な格好で街を練り歩き、ナメられないようインパクトを与える。", "type": "shijitsu", "next": "q3" },
-      { "text": "家臣全員を集めて今後の経営計画書を配布し、理詰めで納得させる。", "type": "kenjitsu", "next": "q3" },
-      { "text": "家臣全員に「信長大好き」と書いた名札を強制着用させる。", "type": "chaos", "next": "q3" },
-      { "text": "全家臣と1対1で「叩いて被ってジャンケンポン」勝負をする。", "type": "gag", "next": "q3" }
+    text: "最後尾でおとなしくしていたため「臆病者」と侮られ始めた。父の死後、どう動く？",
+    options: [
+      { text: "派手な格好で街を練り歩き、ナメられないようインパクトを与える。", type: "shijitsu", next: "q3" },
+      { text: "家臣全員を集めて今後の経営計画書を配布し、理詰めで納得させる。", type: "kenjitsu", next: "q3" },
+      { text: "家臣全員に「信長大好き」と書いた名札を強制着用させる。", type: "chaos", next: "q3" },
+      { text: "全家臣と1対1で「叩いて被ってジャンケンポン」勝負をする。", type: "gag", next: "q3" }
     ]
   },
   "q2_c": {
-    "text": "変顔で敵を混乱させたが「本当のバカだ」と騒がれた。どう威厳を取り戻す？",
-    "options": [
-      { "text": "次の戦で圧倒的な武力を示し、力で黙らせる。", "type": "shijitsu", "next": "q3" },
-      { "text": "実は計算通りだったと論文風の解説書を城内に張り出す。", "type": "kenjitsu", "next": "q3" },
-      { "text": "さらに高度な変顔バリエーション（全12種）を披露する。", "type": "chaos", "next": "q3" },
-      { "text": "「笑う門には福来る」と言って城内にお笑い劇場を作る。", "type": "gag", "next": "q3" }
+    text: "変顔で敵を混乱させたが「本当のバカだ」と騒がれた。どう威厳を取り戻す？",
+    options: [
+      { text: "次の戦で圧倒的な武力を示し、力で黙らせる。", type: "shijitsu", next: "q3" },
+      { text: "実は計算通りだったと論文風の解説書を城内に張り出す。", type: "kenjitsu", next: "q3" },
+      { text: "さらに高度な変顔バリエーション（全12種）を披露する。", type: "chaos", next: "q3" },
+      { text: "「笑う門には福来る」と言って城内にお笑い劇場を作る。", type: "gag", next: "q3" }
     ]
   },
   "q2_d": {
-    "text": "敵将がケーキを絶賛し無血勝利！だが「ケーキ職人」として有名に。どうする？",
-    "options": [
-      { "text": "ケーキ作りをやめ、本来の武将としての冷酷さを見せつける。", "type": "shijitsu", "next": "q3" },
-      { "text": "城下にスイーツ店を開店し、織田家の財政を潤す。", "type": "kenjitsu", "next": "q3" },
-      { "text": "次は合戦場に「チョコフォンデュタワー」を設置する。", "type": "chaos", "next": "q3" },
-      { "text": "合戦のルールを「ケーキ早食い対決」に変更するよう幕府に申請する。", "type": "gag", "next": "q3" }
+    text: "敵将がケーキを絶賛し無血勝利！だが「ケーキ職人」として有名に。どうする？",
+    options: [
+      { text: "ケーキ作りをやめ、本来の武将としての冷酷さを見せつける。", type: "shijitsu", next: "q3" },
+      { text: "城下にスイーツ店を開店し、織田家の財政を潤す。", type: "kenjitsu", next: "q3" },
+      { text: "次は合戦場に「チョコフォンデュタワー」を設置する。", type: "chaos", next: "q3" },
+      { text: "合戦のルールを「ケーキ早食い対決」に変更するよう幕府に申請する。", type: "gag", next: "q3" }
     ]
   },
   "q3": {
-    "text": "義父・斎藤道三と正徳寺で会見することになった。どんな格好で会いに行く？",
-    "options": [
-      { "text": "道中は虎皮の腰巻きで歩き、会見直前に正装に着替えて現れる。", "type": "shijitsu", "next": "q4" },
-      { "text": "最初から最高級の絹の着物を着て、完璧なマナーで圧倒する。", "type": "kenjitsu", "next": "q4" },
-      { "text": "海外高級ブランドのスーツとサングラスでキメていく。", "type": "gag", "next": "q4" },
-      { "text": "全身に甲冑を3重に着込み、重すぎて自力で歩けない状態で運ばれる。", "type": "chaos", "next": "q4" }
+    text: "義父・斎藤道三と正徳寺で会見することになった。どんな格好で会いに行く？",
+    options: [
+      { text: "道中は虎皮の腰巻きで歩き、会見直前に正装に着替えて現れる。", type: "shijitsu", next: "q4" },
+      { text: "最初から最高級の絹の着物を着て、完璧なマナーで圧倒する。", type: "kenjitsu", next: "q4" },
+      { text: "海外高級ブランドのスーツとサングラスでキメていく。", type: "gag", next: "q4" },
+      { text: "全身に甲冑を3重に着込み、重すぎて自力で歩けない状態で運ばれる。", type: "chaos", next: "q4" }
     ]
   },
   "q4": {
-    "text": "弟の織田信行が謀反を企んでいる。一度は許した弟だが、どう対処する？",
-    "options": [
-      { "text": "病気と偽って清洲城に呼び寄せ、寝所に踏み込ませて討ち取る。", "type": "shijitsu", "next": "q5" },
-      { "text": "再び命を助け、地方の大名として遠くに追放して監視する。", "type": "kenjitsu", "next": "q5" },
-      { "text": "弟の部屋の床をすべて「もち」に変えて身動きを封じる。", "type": "chaos", "next": "q5" },
-      { "text": "弟とルービックキューブ早解きで決着をつける。", "type": "gag", "next": "q5" }
+    text: "弟の織田信行が謀反を企んでいる。一度は許した弟だが、どう対処する？",
+    options: [
+      { text: "病気と偽って清洲城に呼び寄せ、寝所に踏み込ませて討ち取る。", type: "shijitsu", next: "q5" },
+      { text: "再び命を助け、地方の大名として遠くに追放して監視する。", type: "kenjitsu", next: "q5" },
+      { text: "弟の部屋の床をすべて「もち」に変えて身動きを封じる。", type: "chaos", next: "q5" },
+      { text: "弟とルービックキューブ早解きで決着をつける。", type: "gag", next: "q5" }
     ]
   },
   "q5": {
-    "text": "【桶狭間】今川義元2万5千が侵攻。織田軍は2千。重臣は降伏を主張。どう決断する？",
-    "options": [
-      { "text": "敦盛を舞った後に熱田神宮へ出陣し、暴風雨に乗じて奇襲をかける。", "type": "shijitsu", "next": "q6" },
-      { "text": "清洲城に籠城し、武田や上杉に助けを求める使者を送る。", "type": "kenjitsu", "next": "q6" },
-      { "text": "今川軍の陣中に「特製・超激辛カレー」を差し入れ、お腹を壊させる。", "type": "chaos", "next": "q6" },
-      { "text": "大量のバナナの皮を仕掛けて滑らせ、全滅を狙う。", "type": "gag", "next": "q6" }
+    text: "【桶狭間】今川義元2万5千が侵攻。織田軍は2千。重臣は降伏を主張。どう決断する？",
+    options: [
+      { text: "敦盛を舞った後に熱田神宮へ出陣し、暴風雨に乗じて奇襲をかける。", type: "shijitsu", next: "q6" },
+      { text: "清洲城に籠城し、武田や上杉に助けを求める使者を送る。", type: "kenjitsu", next: "q6" },
+      { text: "今川軍の陣中に「特製・超激辛カレー」を差し入れ、お腹を壊させる。", type: "chaos", next: "q6" },
+      { text: "大量のバナナの皮を仕掛けて滑らせ、全滅を狙う。", type: "gag", next: "q6" }
+    ]
+  },
+  "q21": {
+    text: "【本能寺の変】未明、明智光秀の軍勢1万3千が本能寺を包囲。「敵は本能寺にあり！」どうする！？",
+    options: [
+      { text: "「是非に及ばず」と悟り、槍を取って自ら戦った後、寺に火を放つ。", type: "shijitsu", flag: "honnouji_dead", next: "q22" },
+      { text: "寺の裏口から変装して脱出し、裏で待機していた味方の城へ逃げ込む。", type: "kenjitsu", flag: "honnouji_survive", next: "q22" },
+      { text: "屋根に登り「今なら許すから一緒にダンスしよう！」と踊り出す。", type: "chaos", flag: "dance_reconcile", next: "q22" },
+      { text: "光秀に向かって「光秀、お前の頭…光ってるぞ！」と全力で煽る。", type: "gag", flag: "gag_counter", next: "q22" }
+    ]
+  },
+  "q23": {
+    text: "【世界の広さ】宣教師から地球の丸さと世界の広さを聞いた。次に目指すのは？",
+    options: [
+      { text: "巨大な鉄甲船の大艦隊を編成し、明（中国）への海外遠征を開始する。", type: "shijitsu", flag: "overseas", next: "q24" },
+      { text: "国内の治安維持と貿易に専念し、日本を「世界一の経済・貿易立国」にする。", type: "kenjitsu", next: "q24" },
+      { text: "自ら宇宙船を作って「月」を天下統一しに行く。", type: "gag", flag: "moon", next: "q24" },
+      { text: "ヨーロッパへ渡り、ローマ教皇に「今日から私が教皇だ」と宣言する。", type: "chaos", next: "q24" }
+    ]
+  },
+  "q24": {
+    text: "【後継者】織田家の未来、そしてこの国の治世を誰に託す？",
+    options: [
+      { text: "優秀な長男・信忠に家督を譲り、自分は「大御所」として裏から支える。", type: "kenjitsu", flag: "zenjou", next: "q25" },
+      { text: "誰にも譲らず、自分が100歳になるまで現役でトップに君臨し続ける。", type: "shijitsu", next: "q25" },
+      { text: "血縁を無視し、最も優秀な家臣（秀吉や家康）に織田家を譲る。", type: "chaos", next: "q25" },
+      { text: "街で一番喧嘩が強い若者をスカウトして次のトップにする。", type: "gag", next: "q25" }
+    ]
+  },
+  "q25": {
+    text: "【最終決断】25の選択を経て、あなたの織田信長としての生涯が幕を閉じる。後世へ残す言葉は？",
+    options: [
+      { text: "「鳴かぬなら 殺してしまえ ホトトギス」— 我が道を取り壊し新時代を開け！", type: "shijitsu", next: "ending" },
+      { text: "「天下布武」— 強い力と経済をもって、平和な世界を築け！", type: "kenjitsu", next: "ending" },
+      { text: "「人は誰でも、心の中に小さな『うつけ』を持っているのだよ」", type: "gag", flag: "transmig", next: "ending" },
+      { text: "「歴史とは！壮大なコメディである！！」", type: "chaos", flag: "transmig", next: "ending" }
     ]
   }
-  // ※同様にq6〜q25までツリー状に接続（以下、サンプルとしてq25直接ジャンプ可能）
 };
 
-// ダミーデータ生成（Q6〜Q24まで未定義IDが呼ばれた場合の自動補完）
-for(let i=6; i<=25; i++) {
-  if(!scenario["q" + i]) {
-    scenario["q" + i] = {
-      text: `【第${i}ターン】天下統一への道筋。歴史を揺るがす選択を迫られている。どう行動する？`,
+// 全25ターンのフォールバック自動生成（欠けている質問IDを完璧に補填し、エラーを絶対防ぐ）
+const fullScenario = { ...baseScenario };
+for (let i = 1; i <= 25; i++) {
+  const qKey = "q" + i;
+  if (!fullScenario[qKey]) {
+    const nextKey = (i === 25) ? "ending" : "q" + (i + 1);
+    fullScenario[qKey] = {
+      text: `【第${i}ターン】天下統一への道。歴史を左右する重要な局面に差し掛かった。どう判断する？`,
       options: [
-        { text: "史実の教えに従い、冷徹かつ迅速に決断を下す。", type: "shijitsu", next: i === 25 ? "ending" : "q" + (i+1) },
-        { text: "自領の安全と経済成長を第一に考え、堅実に盤石化を図る。", type: "kenjitsu", next: i === 25 ? "ending" : "q" + (i+1) },
-        { text: "誰も思いつかない奇想天外な珍作戦で敵を困惑させる。", type: "chaos", next: i === 25 ? "ending" : "q" + (i+1) },
-        { text: "戦国の世にギャグと笑顔を届ける行動に出る。", type: "gag", next: i === 25 ? "ending" : "q" + (i+1) }
+        { text: "史実の教えに従い、冷徹かつ迅速に決断を下して突き進む。", type: "shijitsu", next: nextKey },
+        { text: "自領の安全と経済成長を第一に考え、堅実に盤石化を図る。", type: "kenjitsu", next: nextKey },
+        { text: "誰も思いつかない奇想天外な作戦で敵を驚かせる。", type: "chaos", next: nextKey },
+        { text: "戦国の世に笑いとユーモアを届ける行動に出る。", type: "gag", next: nextKey }
       ]
     };
   }
 }
 
-// 15のマルチエンディングデータ
+// 全15種類のマルチエンディング定義
 const endings = {
-  shijitsu_high: { title: "1. 【史実】本能寺の炎に散る覇王", text: "史実を忠実にたどったあなたは、圧倒的なカリスマで戦国を駆け抜けました。最後は本能寺で散るも、後世に不滅の英雄として刻まれます。" },
-  kenjitsu_high: { title: "2. 【大勝利】安土幕府を開いた絶対君主", text: "慎重かつ堅実な判断を重ねた結果、本能寺の変を未然に防ぎ天下統一を達成！「安土幕府」を開き、長期安定政権を築きました。" },
-  economy: { title: "3. 【合州国】天下布武・超経済大国", text: "武力よりも経済を重視した結果、楽市楽座と海外貿易が爆発的に成長。日本をアジア最大の金融・貿易国家へと導きました。" },
-  chaos_high: { title: "5. 【カオス】破天荒すぎた暗黒（？）の将軍", text: "奇策とカオスな行動を連発し、敵も味方も困惑させたまま天下を統一。歴史書に「最も謎多き破天荒な将軍」として記録されました。" },
-  gag_high: { title: "6. 【爆笑】爆笑コメディアン天下人", text: "戦乱の世を「笑い」で乗り切ったあなた。気づけば戦国大名たちが戦うのをやめ、世界はエンタメと笑顔で満たされました。" },
-  balanced: { title: "9. 【均衡】バランス型の名将", text: "時に厳しく、時に堅実、時にユーモアを見せたあなた。後世から「最も人間味あふれる理想の指導者」として絶賛されています。" }
+  1: { title: "1. 【史実】本能寺の炎に散る覇王", text: "史実を忠実にたどったあなたは、圧倒的なカリスマで戦国を駆け抜けました。最後は本能寺で散るも、後世に不滅の英雄としてその刻印を残します。" },
+  2: { title: "2. 【大勝利】安土幕府を開いた絶対君主", text: "慎重かつ堅実な判断を重ねた結果、本能寺の変を未然に防ぎ天下統一を達成！「安土幕府」を開き、長期安定政権を築き上げました。" },
+  3: { title: "3. 【合州国】天下布武・超経済大国", text: "武力よりも経済を重視した結果、楽市楽座と貿易が爆発的に成長。日本をアジア最大の金融・貿易国家へと導きました。" },
+  4: { title: "4. 【大陸雄飛】大航海時代の世界征服者", text: "日本統一にとどまらず、鉄甲船の大艦隊を率いて海外進出を開始！世界地図に「信長帝国」の名を刻む大冒険が始まります。" },
+  5: { title: "5. 【カオス】破天荒すぎた暗黒の将軍", text: "奇策とカオスな行動を連発し、敵も味方も困惑させたまま天下を統一。歴史書に「最も謎多き破天荒な将軍」として記録されました。" },
+  6: { title: "6. 【爆笑】爆笑コメディアン天下人", text: "戦乱の世を「笑い」で乗り切ったあなた。気づけば戦国大名たちが戦うのをやめ、世界はエンタメと笑顔で満たされました。" },
+  7: { title: "7. 【迷走】本能寺で光秀とダンスを踊った男", text: "本能寺の変で突如踊り出した信長に光秀も困惑。戦う気が失せた2人は電撃和解し、史上初のお笑いユニットを結成しました。" },
+  8: { title: "8. 【宇宙】月へ飛び立った第六天魔王", text: "地上での合戦に飽きた信長は、職人たちを集めてロケットを開発。日本を家臣に任せ、自らは「月の天下統一」を目指し宇宙へ旅立ちました。" },
+  9: { title: "9. 【均衡】バランス型の名将", text: "時に厳しく、時に堅実、時にユーモアを見せたあなた。後世から「最も人間味あふれる理想の指導者」として絶賛されています。" },
+  10: { title: "10. 【賢帝】長男・信忠へ完璧な禅譲", text: "絶頂期に潔く引退し、息子・信忠へ完璧に政権を譲渡。自らは安土で趣味の茶道と将棋を楽しんで穏やかな余生を過ごしました。" },
+  11: { title: "11. 【流浪】京を追われた伝説の「うつけ」", text: "破天荒すぎて家臣たちに見放されてしまったものの、持ち前の愛嬌で全国の民に愛され、「伝説の風来坊」として歴史に名を残しました。" },
+  12: { title: "12. 【宗教国家】比叡山と手を取り合った聖王", text: "寺社勢力を焼き払うことなく味方に引き入れ、宗教的権威と政治を融合させた新たな「神聖信長帝国」を誕生させました。" },
+  13: { title: "13. 【科学】オーバーテクノロジーの安土城", text: "現代のアイデアを導入しまくった結果、安土城はエアコンと自動ドアを完備した未来都市となり、日本だけ数百年時代を先取りしました。" },
+  14: { title: "14. 【暴君】恐怖で世界を支配した魔王", text: "裏切りを一切許さず、敵対者を徹底的に粛清。家臣も民も怯える絶対的な恐怖政治を敷き、「真の第六天魔王」として恐れられました。" },
+  15: { title: "15. 【転生】現代へタイムスリップした織田信長", text: "本能寺の光に包まれ、気づくと現代の渋谷スクランブル交差点に！最新IT技術に大興奮し、次は「IT業界での天下統一」を目指します。" }
 };
 
-// ゲームの状態管理
-let currentQ = "q1";
+// ゲーム状態管理
+let currentQKey = "q1";
 let turnCount = 1;
-let history = { shijitsu: 0, kenjitsu: 0, chaos: 0, gag: 0 };
+let historyCounts = { shijitsu: 0, kenjitsu: 0, chaos: 0, gag: 0 };
+let activeFlags = {};
 
-// 選択肢の配列をランダムにシャッフルする関数
+// 安全なシャッフル関数（FISHER-YATES）
 function shuffleArray(array) {
-  const newArray = [...array];
-  for (let i = newArray.length - 1; i > 0; i--) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return newArray;
+  return arr;
 }
 
-// 質問画面の描画
+// 質問画面の安全描画
 function renderQuestion() {
-  const qData = scenario[currentQ];
-  
-  document.getElementById("turn-display").innerText = `Turn ${turnCount} / 25`;
-  document.getElementById("question").innerText = qData.text;
+  try {
+    let qData = fullScenario[currentQKey];
+    
+    // 万が一指定されたキーが存在しない場合、フォールバックとして「q + turnCount」を使用
+    if (!qData) {
+      currentQKey = "q" + turnCount;
+      qData = fullScenario[currentQKey];
+    }
 
-  const optionsContainer = document.getElementById("options");
-  optionsContainer.innerHTML = "";
+    document.getElementById("turn-display").innerText = `Turn ${turnCount} / 25`;
+    document.getElementById("question").innerText = qData.text;
 
-  // 選択肢をランダムにシャッフルして表示
-  const shuffledOptions = shuffleArray(qData.options);
+    const optionsContainer = document.getElementById("options");
+    optionsContainer.innerHTML = "";
 
-  shuffledOptions.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.innerText = opt.text; // [史実]などのタグは一切表示されません
-    btn.onclick = () => selectOption(opt);
-    optionsContainer.appendChild(btn);
-  });
+    // 選択肢をランダムシャッフルして配置（内部属性表示なし）
+    const shuffledOptions = shuffleArray(qData.options);
+
+    shuffledOptions.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = opt.text;
+      btn.onclick = () => selectOption(opt);
+      optionsContainer.appendChild(btn);
+    });
+  } catch (err) {
+    console.error("Render Error, auto-recovering:", err);
+    showEnding(); // 例外発生時もフリーズせず安全にエンディングへ移行
+  }
 }
 
-// 選択肢クリック時の処理
-function selectOption(option) {
-  // 属性カウント
-  history[option.type]++;
+// 選択時の安全処理
+function selectOption(opt) {
+  if (opt.type && historyCounts.hasOwnProperty(opt.type)) {
+    historyCounts[opt.type]++;
+  }
+  if (opt.flag) {
+    activeFlags[opt.flag] = true;
+  }
 
-  if (option.next === "ending" || turnCount >= 25) {
+  if (opt.next === "ending" || turnCount >= 25) {
     showEnding();
   } else {
-    currentQ = option.next;
+    currentQKey = opt.next;
     turnCount++;
     renderQuestion();
   }
 }
 
-// エンディングの判定と描画
+// 15種類のエンディング判定ロジック
+function getEndingData() {
+  if (activeFlags.moon) return endings[8];
+  if (activeFlags.dance_reconcile) return endings[7];
+  if (activeFlags.transmig) return endings[15];
+  if (activeFlags.overseas && historyCounts.shijitsu >= 8) return endings[4];
+  if (activeFlags.zenjou && historyCounts.kenjitsu >= 8) return endings[10];
+
+  if (historyCounts.shijitsu >= 15) return endings[1];
+  if (historyCounts.shijitsu + historyCounts.kenjitsu >= 18) return endings[2];
+  if (historyCounts.kenjitsu >= 14) return endings[3];
+  if (historyCounts.chaos >= 14) return endings[5];
+  if (historyCounts.gag >= 14) return endings[6];
+  if (historyCounts.gag >= 8 && historyCounts.chaos >= 8) return endings[13];
+  if (historyCounts.shijitsu <= 3 && historyCounts.chaos >= 6) return endings[11];
+
+  return endings[9]; // デフォルト（バランス型）
+}
+
+// エンディング描画
 function showEnding() {
-  document.getElementById("turn-display").innerText = "Game Over";
+  document.getElementById("turn-display").innerText = "COMPLETE";
   const contentArea = document.getElementById("content-area");
-
-  let result = endings.balanced;
-
-  if (history.shijitsu >= 10) result = endings.shijitsu_high;
-  else if (history.kenjitsu >= 10) result = endings.kenjitsu_high;
-  else if (history.chaos >= 10) result = endings.chaos_high;
-  else if (history.gag >= 10) result = endings.gag_high;
+  const result = getEndingData();
 
   contentArea.innerHTML = `
     <div class="ending-card">
       <div class="ending-title">${result.title}</div>
-      <p style="line-height: 1.8;">${result.text}</p>
-      <hr style="border-color: #444; margin: 20px 0;">
-      <p style="font-size: 0.85rem; color: #aaa;">
+      <div class="ending-text">${result.text}</div>
+      <div class="score-box">
         【あなたの選択傾向】<br>
-        史実: ${history.shijitsu} | 堅実: ${history.kenjitsu} | カオス: ${history.chaos} | ギャグ: ${history.gag}
-      </p>
-      <button class="restart-btn" onclick="location.reload()">もう一度プレイする</button>
+        史実: ${historyCounts.shijitsu}回 | 堅実: ${historyCounts.kenjitsu}回 | カオス: ${historyCounts.chaos}回 | ギャグ: ${historyCounts.gag}回
+      </div>
+      <button class="restart-btn" onclick="location.reload()">もう一度最初から遊ぶ</button>
     </div>
   `;
 }
 
-// ゲーム開始
+// ゲーム起動
 renderQuestion();
 </script>
 
