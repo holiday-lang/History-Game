@@ -3,247 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歴史英傑マルチエンディング・アドベンチャー（全12人完全版）</title>
+    <title>歴史英雄選択ゲーム - Historical Choice Engine</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
+            --bg-color: #0f1117;
+            --card-bg: #1a1d27;
             --accent-color: #d4af37;
-            --button-bg: #2c2c2c;
-            --button-hover: #3d3d3d;
+            --text-main: #e2e8f0;
+            --text-sub: #94a3b8;
+            --btn-hover: #2a2f42;
+            --border-color: #334155;
         }
+
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", MeiRyo, sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
+
         #game-container {
             width: 100%;
             max-width: 800px;
             background-color: var(--card-bg);
-            border: 2px solid var(--accent-color);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        h1, h2 {
-            color: var(--accent-color);
-            text-align: center;
-            margin-top: 0;
-        }
-        .status-bar {
+
+        header {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid var(--accent-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
+            align-items: center;
         }
-        .story-text {
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
+
+        h1 {
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            margin: 0;
         }
-        .options-grid {
-            display: flex;
-            flex-direction: column;
+
+        .status-bar {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .hero-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 12px;
+            margin-top: 15px;
         }
-        button {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-            border: 1px solid var(--accent-color);
+
+        .hero-card {
+            background: #242938;
+            border: 1px solid var(--border-color);
+            padding: 15px;
             border-radius: 8px;
-            padding: 14px;
-            font-size: 1em;
-            text-align: left;
             cursor: pointer;
+            text-align: center;
             transition: all 0.2s ease;
         }
-        button:hover {
-            background-color: var(--button-hover);
+
+        .hero-card:hover {
+            border-color: var(--accent-color);
             transform: translateY(-2px);
+            background: var(--btn-hover);
         }
-        .char-select {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+
+        .hero-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: var(--accent-color);
         }
-        .ending-card {
-            border: 2px solid var(--accent-color);
-            background-color: rgba(212, 175, 55, 0.1);
-            padding: 20px;
+
+        .hero-card p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .question-box {
+            margin-bottom: 20px;
+        }
+
+        .chapter-title {
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: #242938;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 14px 18px;
             border-radius: 8px;
-            text-align: center;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.4;
         }
+
+        .option-btn:hover {
+            background-color: var(--btn-hover);
+            border-color: var(--accent-color);
+        }
+
+        .ending-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .ending-title {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .ending-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 25px;
+        }
+
+        .reset-btn {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .reset-btn:hover {
+            opacity: 0.9;
+        }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <!-- 動的にコンテンツが挿入されます -->
+    <header>
+        <h1 id="game-title">歴史英雄選択ゲーム</h1>
+        <div id="status" class="status-bar">人物を選択してください</div>
+    </header>
+
+    <!-- 人物選択画面 -->
+    <div id="hero-select-screen">
+        <p style="color: var(--text-sub); margin-bottom: 10px;">プレイする英雄を選択してください（全12名）：</p>
+        <div id="hero-grid" class="hero-select-grid"></div>
+    </div>
+
+    <!-- プレイ画面 -->
+    <div id="play-screen" class="hidden">
+        <div class="question-box">
+            <div id="chapter-label" class="chapter-title"></div>
+            <div id="question-text" class="question-text"></div>
+        </div>
+        <div id="options-container" class="options-list"></div>
+    </div>
+
+    <!-- エンディング画面 -->
+    <div id="ending-screen" class="hidden">
+        <div class="ending-box">
+            <div id="ending-title" class="ending-title"></div>
+            <div id="ending-desc" class="ending-desc"></div>
+            <button class="reset-btn" onclick="gameEngine.resetGame()">トップ画面に戻る</button>
+        </div>
+    </div>
 </div>
 
+<!-- データファイルの読み込み -->
+<script src="game_data.js"></script>
+
 <script>
-// 全12人物のゲームデータ構造（エンジン）
-const characters = [
-    "織田信長", "ユリウス・カエサル", "劉備玄徳", "ジャンヌ・ダルク",
-    "ナポレオン", "坂本龍馬", "アレクサンドロス", "クレオパトラ",
-    "アーサー王", "諸葛孔明", "始皇帝", "宮本武蔵"
-];
+class HeroGameEngine {
+    constructor(data) {
+        this.data = data;
+        this.currentHero = null;
+        this.currentTurn = 1;
+        this.selectedPath = []; // プレイヤーの選択傾向（A, B, C, Dのカウント）
+        
+        this.ui = {
+            title: document.getElementById('game-title'),
+            status: document.getElementById('status'),
+            selectScreen: document.getElementById('hero-select-screen'),
+            playScreen: document.getElementById('play-screen'),
+            endingScreen: document.getElementById('ending-screen'),
+            heroGrid: document.getElementById('hero-grid'),
+            chapterLabel: document.getElementById('chapter-label'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            endingTitle: document.getElementById('ending-title'),
+            endingDesc: document.getElementById('ending-desc')
+        };
 
-// エンディングテンプレート（16種類）
-const endingTypes = [
-    "史実Trueエンド", "大繁栄IFエンド", "からくり/ファンタジーエンド", "ほのぼのパラダイスエンド",
-    "世界制覇エンド", "異文化融合平和エンド", "現代ビジネスチェーン展開エンド", "ライバル大親友エンド",
-    "要塞超メガロポリスエンド", "早すぎた産業革命エンド", "スペース宇宙進出エンド", "スチームパンクカオスエンド",
-    "爆笑お笑い大名エンド", "ハッピーミュージカルエンド", "ワールドパフォーマンスツアーエンド", "サンバカーニバルエンド"
-];
-
-// ゲーム状態管理
-let gameState = {
-    charId: null,
-    turn: 1,
-    chapter: 1,
-    routeHistory: []
-};
-
-// 初期化（キャラクター選択画面）
-function showCharacterSelect() {
-    const container = document.getElementById('game-container');
-    let html = `<h1>歴史英傑マルチエンディング</h1>`;
-    html += `<p style="text-align:center;">プレイする英傑を選択してください（全12名・各16エンディング）</p>`;
-    html += `<div class="char-select">`;
-    
-    characters.forEach((char, index) => {
-        html += `<button onclick="selectCharacter(${index})">${index + 1}. ${char}</button>`;
-    });
-    
-    html += `</div>`;
-    container.innerHTML = html;
-}
-
-// キャラクター決定
-function selectCharacter(id) {
-    gameState.charId = id;
-    gameState.turn = 1;
-    gameState.chapter = 1;
-    gameState.routeHistory = [];
-    renderTurn();
-}
-
-// 各ターンのレンダリング
-function renderTurn() {
-    const container = document.getElementById('game-container');
-    const charName = characters[gameState.charId];
-    
-    // 20ターン目に到達した場合はエンディングへ
-    if (gameState.turn > 20) {
-        renderEnding();
-        return;
+        this.initHeroSelect();
     }
 
-    // 章の計算 (1-4: Ch1, 5-8: Ch2, 9-12: Ch3, 13-16: Ch4, 17-20: Ch5)
-    gameState.chapter = Math.ceil(gameState.turn / 4);
-
-    let html = `
-        <div class="status-bar">
-            <span>人物: <strong>${charName}</strong></span>
-            <span>第 ${gameState.chapter} 章</span>
-            <span>Turn ${gameState.turn} / 20</span>
-        </div>
-        <div class="story-text">${getStoryText(charName, gameState.turn)}</div>
-        <div class="options-grid">
-    `;
-
-    const options = getOptions(charName, gameState.turn);
-    options.forEach((opt, index) => {
-        const optionLabel = ["A", "B", "C", "D"][index];
-        html += `<button onclick="makeChoice('${optionLabel}')"><strong>${optionLabel}.</strong> ${opt}</button>`;
-    });
-
-    html += `</div>`;
-    container.innerHTML = html;
-}
-
-// 動的ストーリーテキスト生成器
-function getStoryText(name, turn) {
-    return `【${name}編】 Turn ${turn}
-決断の刻が訪れた。これまでの選択が歴史の運命を左右する。
-次なる試練に対し、どのような道を選択するか？`;
-}
-
-// 動的選択肢生成器（全分岐ロジック）
-function getOptions(name, turn) {
-    if (turn === 20) {
-        return [
-            "これぞ我が歩みし史実の道！【史実・覇道】",
-            "新たな時代の平和を創出する！【IF・繁栄】",
-            "未知なる超技術・超常の力を解き放つ！【SF・超技術】",
-            "笑顔と笑いに満ちた世界へ！【エンタメ・ギャグ】"
-        ];
+    initHeroSelect() {
+        this.ui.heroGrid.innerHTML = '';
+        Object.keys(this.data).forEach(heroId => {
+            const hero = this.data[heroId];
+            const card = document.createElement('div');
+            card.className = 'hero-card';
+            card.innerHTML = `<h3>${hero.name}</h3><p>${hero.title}</p>`;
+            card.onclick = () => this.startHeroGame(heroId);
+            this.ui.heroGrid.appendChild(card);
+        });
     }
-    return [
-        `史実に基づき、最も果敢・論理的に対処する。`,
-        `慎重かつ着実な手立てで、兵力・民心を保護する。`,
-        `驚天動地の奇策・秘密兵器（特大の壺など）を投入する！`,
-        `一発芸やギャグで場の緊張を和らげる！`
-    ];
+
+    startHeroGame(heroId) {
+        this.currentHero = this.data[heroId];
+        this.currentTurn = 1;
+        this.selectedPath = [];
+
+        this.ui.selectScreen.classList.add('hidden');
+        this.ui.endingScreen.classList.add('hidden');
+        this.ui.playScreen.classList.remove('hidden');
+
+        this.ui.title.textContent = `${this.currentHero.name}編`;
+        this.renderTurn();
+    }
+
+    renderTurn() {
+        const turnData = this.currentHero.turns[this.currentTurn - 1];
+        
+        // ステータス更新
+        const chapterNum = Math.ceil(this.currentTurn / 4);
+        this.ui.status.textContent = `Turn ${this.currentTurn} / 20 （第${chapterNum}章）`;
+        this.ui.chapterLabel.textContent = `【第${chapterNum}章】${turnData.chapterTitle || ''}`;
+        this.ui.questionText.textContent = turnData.question;
+
+        // 選択肢作成
+        this.ui.optionsContainer.innerHTML = '';
+        turnData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt.text;
+            btn.onclick = () => this.handleOptionSelect(opt.type);
+            this.ui.optionsContainer.appendChild(btn);
+        });
+    }
+
+    handleOptionSelect(optionType) {
+        this.selectedPath.push(optionType);
+
+        if (this.currentTurn < 20) {
+            this.currentTurn++;
+            this.renderTurn();
+        } else {
+            this.showEnding();
+        }
+    }
+
+    showEnding() {
+        this.ui.playScreen.classList.add('hidden');
+        this.ui.endingScreen.classList.remove('hidden');
+        this.ui.status.textContent = "GAME OVER / CLEAR";
+
+        // エンディング判定：20ターンのうち最も多く選んだタイプ（A/B/C/D）を算出
+        const counts = { A: 0, B: 0, C: 0, D: 0 };
+        this.selectedPath.forEach(type => { if(counts[type] !== undefined) counts[type]++; });
+
+        // 最多選択タイプの算出
+        let resultType = 'A';
+        let maxCount = -1;
+        Object.keys(counts).forEach(type => {
+            if (counts[type] > maxCount) {
+                maxCount = counts[type];
+                resultType = type;
+            }
+        });
+
+        // サブバリエーション（前半の傾向から1~4の数値を算出）
+        const subIndex = (this.selectedPath.slice(0, 5).filter(t => t === resultType).length % 4) + 1;
+        const endingKey = `${resultType}${subIndex}`;
+
+        const endingData = this.currentHero.endings[endingKey] || this.currentHero.endings['A1'];
+
+        this.ui.endingTitle.textContent = endingData.title;
+        this.ui.endingDesc.textContent = endingData.description;
+    }
+
+    resetGame() {
+        this.ui.playScreen.classList.add('hidden');
+        this.ui.endingScreen.classList.add('hidden');
+        this.ui.selectScreen.classList.remove('hidden');
+        this.ui.title.textContent = '歴史英雄選択ゲーム';
+        this.ui.status.textContent = '人物を選択してください';
+    }
 }
 
-// 選択実行
-function makeChoice(choice) {
-    gameState.routeHistory.push(choice);
-    gameState.turn++;
-    renderTurn();
-}
-
-// エンディング描画（全16パターンの判定）
-function renderEnding() {
-    const container = document.getElementById('game-container');
-    const charName = characters[gameState.charId];
-    
-    // 過去の選択傾向から16種類のうち1つを自動算出
-    const lastChoice = gameState.routeHistory[gameState.routeHistory.length - 1];
-    let endingIndex = 0;
-    
-    if (lastChoice === 'A') endingIndex = 0;
-    else if (lastChoice === 'B') endingIndex = 4;
-    else if (lastChoice === 'C') endingIndex = 8;
-    else if (lastChoice === 'D') endingIndex = 12;
-
-    // バリエーション付与
-    const secondLast = gameState.routeHistory[gameState.routeHistory.length - 2] || 'A';
-    const subOffset = ["A", "B", "C", "D"].indexOf(secondLast);
-    endingIndex = (endingIndex + subOffset) % 16;
-
-    const endingTitle = endingTypes[endingIndex];
-
-    let html = `
-        <div class="ending-card">
-            <h2>🎉 GAME CLEAR 🎉</h2>
-            <h3>【${charName}編】</h3>
-            <h4>【ED ${endingIndex + 1}：${charName}・${endingTitle}】</h4>
-            <p style="margin: 20px 0; line-height: 1.8;">
-                全20ターンの過酷な試練を駆け抜け、あなただけの歴史がここに完結しました！<br>
-                【到達ルート軌跡】: ${gameState.routeHistory.join(' ➔ ')}
-            </p>
-            <button onclick="showCharacterSelect()" style="width: 100%; text-align: center;">英傑選択画面に戻る</button>
-        </div>
-    `;
-    container.innerHTML = html;
-}
-
-// 初期起動
-window.onload = showCharacterSelect;
+// ゲーム起動
+document.addEventListener('DOMContentLoaded', () => {
+    window.gameEngine = new HeroGameEngine(HERO_GAMES_DATA);
+});
 </script>
 </body>
 </html>
